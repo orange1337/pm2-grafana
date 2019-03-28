@@ -2,17 +2,16 @@
  * Monitoring metrics of PM2, created by orange1337
  */
 
-require('dotenv').config();
-const async   = require('async');
 const request = require('request-promise')
 const Influx  = require('influx');
+const config  = require('./config'); 
 
 const influxModel = new Influx.InfluxDB({
-    host: process.env.DB_HOST,
-    port: 8086,
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
+    host: config.DB_HOST,
+    port: config.DB_PORT,
+    username: config.DB_USER,
+    password: config.DB_PASS,
+    database: config.DB_NAME,
     schema: [
       {
         measurement: 'pm2-prod-node',
@@ -36,10 +35,10 @@ const to = (promise) => {
 /*
 * Node scheduler which runs on every 1sec.
 */
-async function startMetricsWorker(){
+async function startMetricsWorker(host){
   let dateStart = +new Date();
   let options = {
-      uri: `http://${process.env.PM2_HOST}/`,
+      uri: host,
       method: 'GET',
       json: true
   }
@@ -47,15 +46,16 @@ async function startMetricsWorker(){
   let [errReq, pm2Res] = await to(request(options));
   if (errReq){
      console.error(errReq);
-     return wait(startMetricsWorker);
+     return wait(startMetricsWorker, host);
   }
   if (!pm2Res.processes){
      console.error(`pm2Res.processes error`, pm2Res.processes);
-     return wait(startMetricsWorker);
+     return wait(startMetricsWorker, host);
   }
 
   let influxInput = [];
   for(let elem of pm2Res.processes){
+       if (elem){
         let processObj = {};
         processObj['measurement'] = 'pm2-node';
         processObj['tags'] = {
@@ -68,25 +68,29 @@ async function startMetricsWorker(){
           "PROCESS_ID": elem.pid || 0
         };
         influxInput.push(processObj);
+      }
   }
   let [errDb, opEnd] = await to(influxModel.writePoints(influxInput));
   if (errDb){
       console.error(`Write point fail :(,  ${errDb.message}`);
-      return wait(startMetricsWorker);
+      return wait(startMetricsWorker, host);
   }
-  
   let performance = +new Date() - dateStart;
-  console.log(`Write point Success :) operation time: ${performance.toFixed()} msec`);
-  wait(startMetricsWorker);
+  console.log(`[Success ${host}] op time: ${performance.toFixed()} msec`);
+  wait(startMetricsWorker, host);
 }
 
-function wait(func){
-    setTimeout(func, process.env.TIME_TO_UPDATE);
+function wait(func, host){
+    setTimeout(() => { func(host) }, config.TIME_TO_UPDATE);
 }
 
 /**
- * Start Metrics Worker
+ * Start Metrics Workers
  */
-startMetricsWorker();
+config.PM2_HOSTS.forEach(host => {
+    startMetricsWorker(host);
+});
+
+
 
 
