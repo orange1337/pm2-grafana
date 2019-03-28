@@ -1,0 +1,6 @@
+docker-compose.yml
+node_modules
+grafana
+influxdb
+influxdb.conf
+chronograf-v1.db

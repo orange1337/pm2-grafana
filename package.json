@@ -1,0 +1,19 @@
+{
+  "name": "pm2-grafana",
+  "version": "1.0.0",
+  "description": "Free metrics with pm2, grafana, influxDB",
+  "main": "monitoring.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "orange1337",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^2.6.2",
+    "dotenv": "^7.0.0",
+    "influx": "^5.0.7",
+    "node-cron": "^2.0.3",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
+  }
+}
