@@ -5,6 +5,7 @@
 const request = require('request-promise')
 const Influx  = require('influx');
 const config  = require('./config'); 
+const URL     = require('url').URL;
 
 const influxModel = new Influx.InfluxDB({
     host: config.DB_HOST,
@@ -36,6 +37,7 @@ const to = (promise) => {
 * Node scheduler which runs on every 1sec.
 */
 async function startMetricsWorker(host){
+  let url = new URL(host);
   let dateStart = +new Date();
   let options = {
       uri: host,
@@ -59,7 +61,7 @@ async function startMetricsWorker(host){
         let processObj = {};
         processObj['measurement'] = 'pm2-node';
         processObj['tags'] = {
-          "host": elem.name || null
+          "host": `${elem.name}_${url.hostname}` || null
         };
         processObj['fields'] = {
           "NAME": elem.name || null,
