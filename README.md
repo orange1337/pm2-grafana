@@ -1,6 +1,6 @@
 # pm2-grafana
 
-Made with ♥ by [orange1337](https://cryptolions.io/)
+Made with ♥ by [orange1337](https://github.com/orange1337)
 
 ## Dependencies
 
@@ -75,6 +75,7 @@ services:
     build:
       context: ./pm2-grafana
       dockerfile: Dockerfile
+    restart: always
     ports:
       - 3088:3088
     links:
@@ -100,7 +101,7 @@ module.exports = config;
 
 #### 3. Starting
 ```
-// Start Production ENV
+// Build docker containers
 docker-compose up -d --build
 ```
 
