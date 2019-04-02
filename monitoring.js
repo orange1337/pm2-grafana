@@ -61,7 +61,7 @@ async function startMetricsWorker(host){
         let processObj = {};
         processObj['measurement'] = 'pm2-node';
         processObj['tags'] = {
-          "host": `${elem.name}_${url.hostname}` || null
+          "host": `${elem.name}_${url.hostname}_${elem.pid}` || null
         };
         processObj['fields'] = {
           "NAME": elem.name || null,
