@@ -60,10 +60,7 @@ async function startMetricsWorker(host){
   for(let elem of pm2Res.processes){
        if (elem){
         let processObj = {};
-        let uniqueClusterId = '';
-        if (elem.pm2_env.exec_mode === 'cluster_mode'){
-            uniqueClusterId = `_${counterCluster += 1}`;
-        }
+        let uniqueClusterId = (elem.pm2_env.exec_mode === 'cluster_mode') ? `_${counterCluster += 1}` : '';
         processObj['measurement'] = 'pm2-node';
         processObj['tags'] = {
           "host": `${elem.name}_${url.hostname}${uniqueClusterId}` || null
