@@ -48,11 +48,11 @@ async function startMetricsWorker(host){
   let [errReq, pm2Res] = await to(request(options));
   if (errReq){
      console.error(errReq);
-     return wait(startMetricsWorker, host);
+     return wait(startMetricsWorker, host, dateStart);
   }
   if (!pm2Res.processes){
      console.error(`pm2Res.processes error`, pm2Res.processes);
-     return wait(startMetricsWorker, host);
+     return wait(startMetricsWorker, host, dateStart);
   }
 
   let influxInput = [];
@@ -77,15 +77,19 @@ async function startMetricsWorker(host){
   let [errDb, opEnd] = await to(influxModel.writePoints(influxInput));
   if (errDb){
       console.error(`Write point fail :(,  ${errDb.message}`);
-      return wait(startMetricsWorker, host);
+      return wait(startMetricsWorker, host, dateStart);
   }
-  let performance = +new Date() - dateStart;
-  console.log(`[Success ${host}] op time: ${performance.toFixed()} msec`);
-  wait(startMetricsWorker, host);
+  wait(startMetricsWorker, host, dateStart);
 }
 
-function wait(func, host){
-    setTimeout(() => { func(host) }, config.TIME_TO_UPDATE);
+function wait(func, host, dateStart){
+    let performance = +new Date() - dateStart;
+    let timeout = config.TIME_TO_UPDATE - performance;
+    console.log(`[Success ${host}] op time: ${performance.toFixed()} msec`);
+    if (timeout > 0){
+        return setTimeout(() => { func(host) }, timeout);
+    }
+    return setTimeout(() => { func(host) }, 0);
 }
 
 /**
