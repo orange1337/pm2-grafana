@@ -71,7 +71,7 @@ async function startMetricsWorker(host){
           "CPU": elem.monit.cpu || 0,
           "MEM": elem.monit.memory || 0,
           "PROCESS_ID": elem.pid || 0,
-          "REALTIME_USERS": elem.pm2_env.axm_monitor.realtimeUsers || 0
+          "REALTIME_USERS": (elem.pm2_env.axm_monitor.realtimeUsers) ? elem.pm2_env.axm_monitor.realtimeUsers.value : 0
         };
         influxInput.push(processObj);
       }
