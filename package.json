@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "influx": "^5.0.7",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "request": "^2.88.0",
     "request-promise": "^4.2.4"
   }
